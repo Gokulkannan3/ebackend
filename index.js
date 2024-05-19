@@ -189,6 +189,109 @@ app.get('/ownern', (req, res) => {
     );
 });
 
+app.post('/studentreq', (req, res) => {
+    const { name, category, contact, ownername } = req.body;
+
+    db.query(
+        'INSERT INTO studentenquire (name, category, contact, ownername) VALUES (?, ?, ?, ?)',
+        [name, category, contact, ownername],
+        (err, result) => {
+            if (err) {
+                console.log(err);
+                return res.status(500).json({ error: 'Internal Server Error' });
+            } else {
+                console.log(result);
+                return res.status(200).json({ message: 'Enquiry details inserted successfully' });
+            }
+        }
+    );
+});
+
+app.get('/studentacc', (req, res) => {
+    const ownername = req.query.ownername;
+
+    db.query(
+        'SELECT * FROM studentenquire WHERE ownername = ?',
+        [ownername],
+        (err, result) => {
+            if (err) {
+                console.log(err);
+                return res.status(500).json({ error: 'Internal Server Error' });
+            } else {
+                res.status(200).json(result);
+            }
+        }
+    );
+});
+
+  function verifyToken(req, res, next) {
+    const token = req.headers['x-access-token'];
+    if (!token) {
+      return res.status(403).json({ auth: false, message: 'No token provided.' });
+    }
+  
+    jwt.verify(token, 'your_secret_key', (err, decoded) => {
+      if (err) {
+        return res.status(500).json({ auth: false, message: 'Failed to authenticate token.' });
+      }
+      req.userId = decoded.id;
+      next();
+    });
+  }
+
+  // Assuming you have already set up your Express app and connected to your MySQL database
+
+app.delete('/api/enquiries/:id', (req, res) => {
+    const enquiryId = req.params.id;
+
+    // Delete the row with the specified ID from the studentenquire table
+    db.query(
+        'DELETE FROM studentenquire WHERE id = ?',
+        [enquiryId],
+        (err, result) => {
+            if (err) {
+                console.log(err);
+                return res.status(500).json({ error: 'Internal Server Error' });
+            } else {
+                console.log(result);
+
+                // Check if the row was successfully deleted
+                if (result.affectedRows > 0) {
+                    return res.status(200).json({ message: 'Enquiry cancelled successfully' });
+                } else {
+                    return res.status(404).json({ error: 'Enquiry not found' });
+                }
+            }
+        }
+    );
+});
+
+
+
+
+  
+  // Backend API to update the status of an enquiry to 'accepted'
+
+app.put('/api/enquiries/:id/accept', (req, res) => {
+    const enquiryId = req.params.id;
+
+    db.query(
+        'UPDATE studentenquire SET status = ? WHERE id = ?',
+        ['accepted', enquiryId],
+        (err, result) => {
+            if (err) {
+                console.log(err);
+                return res.status(500).json({ error: 'Internal Server Error' });
+            } else {
+                console.log(result);
+                return res.status(200).json({ message: 'Enquiry status updated to accepted' });
+            }
+        }
+    );
+});
+
+
+
 
 app.listen(3002, () => {
     console.log('Server started');
