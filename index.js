@@ -160,7 +160,7 @@ app.post('/owner', upload.fields([
 // Modify the /owners endpoint to fetch BLOB images
 app.get('/owners', (req, res) => {
     db.query(
-        'SELECT * FROM owner',
+        'SELECT * FROM owner WHERE category=Student',
         (err, result) => {
             if (err) {
                 console.log(err);
