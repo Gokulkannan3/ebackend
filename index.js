@@ -159,20 +159,20 @@ app.post('/owner', upload.fields([
 
 // Modify the /owners endpoint to fetch BLOB images
 app.get('/owners', (req, res) => {
+
     db.query(
-        'SELECT * FROM owner WHERE category=Student',
+        'SELECT * FROM owner WHERE category="Student"',
+        [category],
         (err, result) => {
             if (err) {
                 console.log(err);
                 return res.status(500).json({ error: 'Internal Server Error' });
             } else {
-                // Send the result containing BLOB data as response
                 res.status(200).json({ owners: result });
             }
         }
     );
 });
-
 
 app.listen(3002, () => {
     console.log('Server started');
