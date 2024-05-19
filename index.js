@@ -173,6 +173,22 @@ app.get('/owners', (req, res) => {
     );
 });
 
+app.get('/ownern', (req, res) => {
+    db.query(
+        'SELECT * FROM owner WHERE category = ?',
+        ['Normal user'],
+        (err, result) => {
+            if (err) {
+                console.log(err);
+                return res.status(500).json({ error: 'Internal Server Error' });
+            } else {
+                // Send the result containing BLOB data as response
+                res.status(200).json({ owners: result });
+            }
+        }
+    );
+});
+
 
 app.listen(3002, () => {
     console.log('Server started');
